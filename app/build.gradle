@@ -8,8 +8,8 @@ android {
         applicationId 'org.pocketworkstation.pckeyboard'
         minSdk 23
         targetSdk 35
-        versionCode 1041001
-        versionName "v1.41.1"
+        versionCode 2000000
+        versionName "v2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
