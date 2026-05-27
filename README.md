@@ -1,37 +1,115 @@
-## Overview ##
+# Hacker's Keyboard Renew
 
-**WARNING:** *This is a rather ancient project that was originally developed back in 2011 based on the Android 2.3 (Gingerbread) AOSP keyboard. While it still works as-is for many users, it would need some major rewrites to work with newer APIs, and some features such as language switching or popup keys don't work right on modern Android systems. I'm not currently planning on significant updates, and it's possible that it will stop working on modern devices or will no longer be updateable via the Google Play store due to minimum API level requirements. Play Store requires targeting API level 29 (Android 10), while the code was written for API level 9 (Android 2.3) from 2011.*
+Hacker's Keyboard Renew is an unofficial modernized fork of
+[Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), the Android
+software keyboard that brings a PC-style layout to touch devices.
 
-Are you missing the key layout you're used to from your computer when using an Android device? This software keyboard has separate number keys, punctuation in the usual places, and arrow keys. It is based on the AOSP Gingerbread soft keyboard, so it supports multitouch for the modifier keys.
+The goal of this fork is to keep the original spirit of Hacker's Keyboard while
+making the project build and run on current Android tooling, with a longer-term
+target of Google Play readiness.
 
-This keyboard is especially useful if you use ConnectBot for SSH access. It provides working Tab/Ctrl/Esc keys, and the arrow keys are essential for devices such as the Xoom tablet or Nexus S that don't have a trackball or D-Pad.
+![Hacker's Keyboard 5-row layout](hk-5row-en-s.png)
 
-The supported keyboard layouts include Armenian (Հայերեն), Arabic (العربية),
-British (en\_GB), Bulgarian (български език), Czech (Čeština), Danish (dansk),
-Carpalx English (language "en-CX"), Dvorak English (language "en-DV"), English
-(QWERTY), Finnish (Suomi), French (Français, AZERTY), German (Deutsch, QWERTZ),
-German Neo2 (Deutsch, language "de-NE"),
-Greek (ελληνικά), Hebrew (עברית), Hungarian (Magyar), Italian (Italiano), Lao
-(ພາສາລາວ), Norwegian (Norsk bokmål), Persian (فارسی), Portuguese (Português),
-Romanian (Română), Russian (Русский), Russian phonetic (Русский, ru-rPH),
-Serbian (Српски), Slovak (Slovenčina), Slovenian
-(Slovenščina)/Bosnian/Croatian/Latin Serbian, Spanish (Español, Español
-Latinoamérica), Swedish (Svenska), Tamil (தமிழ்), Thai (ไทย), Turkish (Türkçe),
-and Ukrainian (українська мова).
+## Project Status
 
-To install, get **[Hacker's
-Keyboard](https://play.google.com/store/apps/details?id=org.pocketworkstation.pckeyboard)**
-from the Play Store, plus optional [dictionary
-packs](https://play.google.com/store/apps/developer?id=Klaus+Weidner).
+This project is in early modernization work.
 
-## Additional resources ##
+Current changes include:
 
-See the **[Release Notes](https://github.com/klausw/hackerskeyboard/wiki/ReleaseNotes)** for changes in the Play Store released versions.
+- Updated Gradle and Android Gradle Plugin configuration.
+- Added a modern Android namespace and target SDK configuration.
+- Updated support-library notification usage to AndroidX.
+- Added required manifest `android:exported` declarations for newer Android
+  versions.
+- Fixed native build configuration for current CMake/NDK tooling.
+- Set the default keyboard mode to the full 5-row layout in portrait and
+  landscape.
 
-Having problems? See the **[User's Guide](https://github.com/klausw/hackerskeyboard/wiki/UsersGuide)** and **[FAQ](https://github.com/klausw/hackerskeyboard/wiki/FrequentlyAskedQuestions)**, and check the [issue tracker](https://github.com/klausw/hackerskeyboard/issues) for known bugs or filing new ones.
+The app currently builds with:
 
-Comments, requests, or contributions? Join the [discussion group](http://groups.google.com/group/hackerskeyboard/).
+- Android Gradle Plugin 8.9.0
+- Gradle 8.11.1
+- Java 17
+- compileSdk 35
+- targetSdk 35
+- minSdk 23
 
-Application developers: see [the page about keyboard support in applications](https://github.com/klausw/hackerskeyboard/wiki/KeyboardSupportInApplications) if you want to enable the additional keys in your Android application, the same method also works for hardware USB or Bluetooth keyboards.
+## Important Notes
 
-![hk-5row-en-s.png](hk-5row-en-s.png)
+The original Hacker's Keyboard codebase was created around 2011 and is based on
+the Android 2.3 Gingerbread AOSP keyboard. Some parts of the app still need
+deeper modernization before this fork should be considered production-ready.
+
+Known areas that still need work:
+
+- Language switching behavior on modern Android.
+- Popup key behavior on modern Android.
+- Full compatibility testing across recent Android versions.
+- Release signing and Play Store packaging workflow.
+- Privacy policy, store listing, and other Play Store submission materials.
+
+## Building
+
+From the repository root:
+
+```bash
+./gradlew assembleDebug
+```
+
+The debug APK will be generated at:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+For a release bundle:
+
+```bash
+./gradlew bundleRelease
+```
+
+The release bundle will be generated at:
+
+```text
+app/build/outputs/bundle/release/app-release.aab
+```
+
+## Installing a Debug Build
+
+After building a debug APK, install it with:
+
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+If the keyboard still opens with an older layout after reinstalling, clear the
+app data or uninstall the previous build first. Android keeps keyboard
+preferences across updates.
+
+```bash
+adb shell pm clear org.pocketworkstation.pckeyboard
+```
+
+Then enable Hacker's Keyboard Renew in Android's system keyboard settings.
+
+## Relationship to the Original Project
+
+This is not an official continuation by the original author. It is an
+independent fork intended to renew compatibility with modern Android versions.
+
+Original project:
+
+```text
+https://github.com/klausw/hackerskeyboard
+```
+
+Original author:
+
+```text
+Klaus Weidner
+```
+
+## License
+
+This project remains licensed under the Apache License 2.0, following the
+original Hacker's Keyboard project. See [LICENSE](LICENSE) for details.
