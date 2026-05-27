@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Hackers Keyboard Renew</title>
+
+<style>
+:root{
+    --bg:#0f1115;
+    --card:#161a22;
+    --text:#e6eaf2;
+    --muted:#9aa4b2;
+    --accent:#6ea8fe;
+    --border:#262b36;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    line-height:1.7;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:64px 24px;
+}
+
+.hero{
+    margin-bottom:56px;
+}
+
+.badge{
+    display:inline-block;
+    padding:6px 12px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:clamp(42px,8vw,72px);
+    line-height:1.05;
+    margin:0 0 24px;
+    letter-spacing:-0.04em;
+}
+
+.subtitle{
+    font-size:20px;
+    color:var(--muted);
+    max-width:700px;
+}
+
+.buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-top:36px;
+}
+
+.button{
+    text-decoration:none;
+    color:white;
+    background:var(--accent);
+    padding:14px 22px;
+    border-radius:14px;
+    font-weight:600;
+    transition:0.2s;
+}
+
+.button.secondary{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text);
+}
+
+.button:hover{
+    transform:translateY(-2px);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:20px;
+    margin-top:48px;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:24px;
+}
+
+.card h3{
+    margin-top:0;
+    margin-bottom:12px;
+    font-size:20px;
+}
+
+.card p{
+    margin:0;
+    color:var(--muted);
+}
+
+.section{
+    margin-top:72px;
+}
+
+.section h2{
+    font-size:32px;
+    margin-bottom:20px;
+}
+
+.feature-list{
+    padding-left:20px;
+    color:var(--muted);
+}
+
+footer{
+    margin-top:80px;
+    padding-top:32px;
+    border-top:1px solid var(--border);
+    color:var(--muted);
+    font-size:14px;
+}
+
+a{
+    color:var(--accent);
+}
+
+code{
+    background:#1d2330;
+    padding:2px 6px;
+    border-radius:6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <section class="hero">
+
+        <div class="badge">
+            Open Source · Android Keyboard
+        </div>
+
+        <h1>
+            Hackers Keyboard Renew
+        </h1>
+
+        <p class="subtitle">
+            A modernized fork of Hacker's Keyboard for Android,
+            optimized for terminal users, developers, SSH workflows,
+            and physical keyboard-style input.
+        </p>
+
+        <div class="buttons">
+            <a class="button"
+               href="https://github.com/X2M7/hackerskeyboard-renew">
+               GitHub Repository
+            </a>
+
+            <a class="button secondary"
+               href="./privacy-policy.html">
+               Privacy Policy
+            </a>
+        </div>
+
+    </section>
+
+    <section class="grid">
+
+        <div class="card">
+            <h3>Modern Android Support</h3>
+            <p>
+                Updated for recent Android versions with improved
+                compatibility for modern devices.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Developer Friendly</h3>
+            <p>
+                Full PC-style layout including Ctrl, Alt, Esc,
+                arrow keys, and function keys.
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Privacy Focused</h3>
+            <p>
+                No telemetry, no analytics, no ads,
+                and no cloud tracking.
+            </p>
+        </div>
+
+    </section>
+
+    <section class="section">
+
+        <h2>Features</h2>
+
+        <ul class="feature-list">
+            <li>5-row keyboard layout</li>
+            <li>Terminal and SSH optimized</li>
+            <li>Works well with Termux</li>
+            <li>Landscape and fullscreen support</li>
+            <li>Arrow keys and modifier keys</li>
+            <li>Open source under Apache 2.0</li>
+            <li>Lightweight and minimal</li>
+        </ul>
+
+    </section>
+
+    <section class="section">
+
+        <h2>Open Source</h2>
+
+        <p style="color:var(--muted)">
+            This project is based on the original
+            Hacker's Keyboard project by Klaus Weidner
+            and continues its mission with modern Android support
+            and usability improvements.
+        </p>
+
+    </section>
+
+    <footer>
+
+        <p>
+            © 2026 Hackers Keyboard Renew
+        </p>
+
+        <p>
+            GitHub:
+            <a href="https://github.com/X2M7/hackerskeyboard-renew">
+                X2M7/hackerskeyboard-renew
+            </a>
+        </p>
+
+    </footer>
+
+</div>
+
+</body>
+</html>
