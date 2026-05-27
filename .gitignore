@@ -9,5 +9,8 @@
 .DS_Store
 /build
 /captures
-gradle
+*.apk
+hk_ui*.png
+.cxx
+app/.cxx
 .externalNativeBuild
