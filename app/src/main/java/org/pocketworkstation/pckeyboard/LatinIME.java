@@ -1153,6 +1153,17 @@ public class LatinIME extends InputMethodService implements
             }
         }
         super.setCandidatesViewShown(visible);
+        View parent = mCandidateViewContainer != null
+                && mCandidateViewContainer.getParent() instanceof View
+                ? (View) mCandidateViewContainer.getParent() : null;
+
+        View grandParent = parent != null
+                && parent.getParent() instanceof View
+                ? (View) parent.getParent() : null;
+
+        if (!isFullscreenMode() && grandParent != null) {
+            grandParent.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     @Override
