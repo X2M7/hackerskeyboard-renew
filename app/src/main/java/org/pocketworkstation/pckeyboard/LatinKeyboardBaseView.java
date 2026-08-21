@@ -628,6 +628,9 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         mHasDistinctMultitouch = context.getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH_DISTINCT);
         mKeyRepeatInterval = res.getInteger(R.integer.config_key_repeat_interval);
+
+        // Android 15 compatibility
+        setFitsSystemWindows(true);
     }
 
     private boolean showHints7Bit() {
@@ -679,6 +682,7 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         mLabelScale = LatinIME.sKeyboardSettings.labelScalePref;
         //if (keyboard.mLayoutRows >= 4) mLabelScale *= 5.0f / keyboard.mLayoutRows;
         requestLayout();
+        requestApplyInsets();
         // Hint to reallocate the buffer if the size changed
         mKeyboardChanged = true;
         invalidateAllKeys();
@@ -829,7 +833,6 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
                 int badWidth = MeasureSpec.getSize(widthMeasureSpec);
                 if (badWidth != width) Log.i(TAG, "ignoring unexpected width=" + badWidth);
             }
-            Log.i(TAG, "onMeasure width=" + width);
             setMeasuredDimension(
                     width, mKeyboard.getHeight() + getPaddingTop() + getPaddingBottom());
         }
