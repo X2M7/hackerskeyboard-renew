@@ -1909,6 +1909,13 @@ public class LatinIME extends InputMethodService implements
         }
 
         // Default handling for anything else, including unmodified ENTER and SPACE.
+        InputConnection ic = getCurrentInputConnection();
+
+        if (ic != null) {
+
+            ic.finishComposingText();
+        }
+
         sendKeyChar(ch);
     }
     
@@ -2312,6 +2319,8 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleCharacter(int primaryCode, int[] keyCodes) {
+        boolean touchingWord = isCursorTouchingWord();
+
         if (mLastSelectionStart == mLastSelectionEnd
                 && TextEntryState.isCorrecting()) {
             abortCorrection(false);
@@ -2319,7 +2328,7 @@ public class LatinIME extends InputMethodService implements
 
         if (isAlphabet(primaryCode) && isPredictionOn()
                 && !mModCtrl && !mModAlt && !mModMeta
-                && !isCursorTouchingWord()) {
+                && !touchingWord) {
             if (!mPredicting) {
                 mPredicting = true;
                 mComposing.setLength(0);
