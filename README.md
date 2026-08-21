@@ -19,11 +19,14 @@ Current changes include:
 - Updated Gradle and Android Gradle Plugin configuration.
 - Added a modern Android namespace and target SDK configuration.
 - Updated support-library notification usage to AndroidX.
-- Added required manifest `android:exported` declarations for newer Android
-  versions.
+- Added required manifest `android:exported` declarations for newer Android versions.
 - Fixed native build configuration for current CMake/NDK tooling.
-- Set the default keyboard mode to the full 5-row layout in portrait and
-  landscape.
+- Fixed Android 15 IME layout and setup screen issues.
+- Fixed settings navigation on newer Android versions.
+- Fixed a crash related to the permanent notification on Android 13+.
+- Fixed candidate view visibility in non-fullscreen mode.
+- Fixed opening settings from the input method.
+- Fixed composing state issues after switching applications.
 
 The app currently builds with:
 
@@ -95,19 +98,16 @@ Then enable Hacker's Keyboard Renew in Android's system keyboard settings.
 ## Relationship to the Original Project
 
 This is not an official continuation by the original author. It is an
-independent fork intended to renew compatibility with modern Android versions.
+independent project based on the original Hacker's Keyboard and intended to
+continue its development and compatibility with modern Android versions.
 
 Original project:
 
-```text
 https://github.com/klausw/hackerskeyboard
-```
 
 Original author:
 
-```text
 Klaus Weidner
-```
 
 ## License
 
