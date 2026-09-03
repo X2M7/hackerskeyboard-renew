@@ -22,6 +22,7 @@ import java.util.Map;
 import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -69,6 +70,28 @@ public class LatinIMESettings extends PreferenceActivity
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.prefs);
+        Preference prefView = findPreference("prefs_view");
+        Preference prefFeedback = findPreference("prefs_feedback");
+        Preference prefActions = findPreference("prefs_actions");
+        Preference prefInputLanguages = findPreference("input_languages");
+        prefView.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(this, PrefScreenView.class));
+            return true;
+        });
+
+        prefFeedback.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(this, PrefScreenFeedback.class));
+            return true;
+        });
+
+        prefActions.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(this, PrefScreenActions.class));
+            return true;
+        });
+        prefInputLanguages.setOnPreferenceClickListener(preference -> {
+            startActivity(new Intent(this, InputLanguageSelection.class));
+            return true;
+        });
         mQuickFixes = (CheckBoxPreference) findPreference(QUICK_FIXES_KEY);
         mVoicePreference = (ListPreference) findPreference(VOICE_SETTINGS_KEY);
         mSettingsKeyPreference = (ListPreference) findPreference(PREF_SETTINGS_KEY);

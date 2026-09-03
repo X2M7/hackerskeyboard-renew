@@ -489,7 +489,15 @@ public class LatinIME extends InputMethodService implements
             mNotificationReceiver = new NotificationReceiver(this);
             final IntentFilter pFilter = new IntentFilter(NotificationReceiver.ACTION_SHOW);
             pFilter.addAction(NotificationReceiver.ACTION_SETTINGS);
-            registerReceiver(mNotificationReceiver, pFilter);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(
+                        mNotificationReceiver,
+                        pFilter,
+                        Context.RECEIVER_NOT_EXPORTED
+                );
+            } else {
+                registerReceiver(mNotificationReceiver, pFilter);
+            }
             
             Intent notificationIntent = new Intent(NotificationReceiver.ACTION_SHOW);
             int pendingIntentFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -1145,6 +1153,17 @@ public class LatinIME extends InputMethodService implements
             }
         }
         super.setCandidatesViewShown(visible);
+        View parent = mCandidateViewContainer != null
+                && mCandidateViewContainer.getParent() instanceof View
+                ? (View) mCandidateViewContainer.getParent() : null;
+
+        View grandParent = parent != null
+                && parent.getParent() instanceof View
+                ? (View) parent.getParent() : null;
+
+        if (!isFullscreenMode() && grandParent != null) {
+            grandParent.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 
     @Override
@@ -1468,7 +1487,9 @@ public class LatinIME extends InputMethodService implements
             // Input method selector is available as a button in the soft key area, so just launch
             // HK settings directly. This also works around the alert dialog being clipped
             // in Android O.
-            startActivity(new Intent(this, LatinIMESettings.class));
+            Intent intent = new Intent(this, LatinIMESettings.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         } else {
             // Show an options menu with choices to change input method or open HK settings.
             if (!isShowingOptionDialog()) {
@@ -1888,6 +1909,13 @@ public class LatinIME extends InputMethodService implements
         }
 
         // Default handling for anything else, including unmodified ENTER and SPACE.
+        InputConnection ic = getCurrentInputConnection();
+
+        if (ic != null) {
+
+            ic.finishComposingText();
+        }
+
         sendKeyChar(ch);
     }
     
@@ -2291,6 +2319,8 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleCharacter(int primaryCode, int[] keyCodes) {
+        boolean touchingWord = isCursorTouchingWord();
+
         if (mLastSelectionStart == mLastSelectionEnd
                 && TextEntryState.isCorrecting()) {
             abortCorrection(false);
@@ -2298,7 +2328,7 @@ public class LatinIME extends InputMethodService implements
 
         if (isAlphabet(primaryCode) && isPredictionOn()
                 && !mModCtrl && !mModAlt && !mModMeta
-                && !isCursorTouchingWord()) {
+                && !touchingWord) {
             if (!mPredicting) {
                 mPredicting = true;
                 mComposing.setLength(0);
