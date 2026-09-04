@@ -39,6 +39,7 @@ import android.graphics.drawable.StateListDrawable;
 import org.pocketworkstation.pckeyboard.Keyboard.Key;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -55,6 +56,7 @@ import android.widget.TextView;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.ref.WeakReference;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -287,34 +289,45 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
     };
     private final ColorMatrixColorFilter mInvertingColorFilter = new ColorMatrixColorFilter(INVERTING_MATRIX);
 
-    private final UIHandler mHandler = new UIHandler();
+    private final UIHandler mHandler = new UIHandler(this);
 
-    class UIHandler extends Handler {
+    static class UIHandler extends Handler {
         private static final int MSG_POPUP_PREVIEW = 1;
         private static final int MSG_DISMISS_PREVIEW = 2;
         private static final int MSG_REPEAT_KEY = 3;
         private static final int MSG_LONGPRESS_KEY = 4;
 
+        private final WeakReference<LatinKeyboardBaseView> mViewReference;
         private boolean mInKeyRepeat;
+
+        UIHandler(LatinKeyboardBaseView view) {
+            super(Looper.getMainLooper());
+            mViewReference = new WeakReference<LatinKeyboardBaseView>(view);
+        }
 
         @Override
         public void handleMessage(Message msg) {
+            LatinKeyboardBaseView view = mViewReference.get();
+            if (view == null) {
+                removeCallbacksAndMessages(null);
+                return;
+            }
             switch (msg.what) {
                 case MSG_POPUP_PREVIEW:
-                    showKey(msg.arg1, (PointerTracker)msg.obj);
+                    view.showKey(msg.arg1, (PointerTracker)msg.obj);
                     break;
                 case MSG_DISMISS_PREVIEW:
-                    mPreviewPopup.dismiss();
+                    view.mPreviewPopup.dismiss();
                     break;
                 case MSG_REPEAT_KEY: {
                     final PointerTracker tracker = (PointerTracker)msg.obj;
                     tracker.repeatKey(msg.arg1);
-                    startKeyRepeatTimer(mKeyRepeatInterval, msg.arg1, tracker);
+                    startKeyRepeatTimer(view.mKeyRepeatInterval, msg.arg1, tracker);
                     break;
                 }
                 case MSG_LONGPRESS_KEY: {
                     final PointerTracker tracker = (PointerTracker)msg.obj;
-                    openPopupIfRequired(msg.arg1, tracker);
+                    view.openPopupIfRequired(msg.arg1, tracker);
                     break;
                 }
             }
@@ -322,9 +335,11 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
 
         public void popupPreview(long delay, int keyIndex, PointerTracker tracker) {
             removeMessages(MSG_POPUP_PREVIEW);
-            if (mPreviewPopup.isShowing() && mPreviewText.getVisibility() == VISIBLE) {
+            LatinKeyboardBaseView view = mViewReference.get();
+            if (view == null) return;
+            if (view.mPreviewPopup.isShowing() && view.mPreviewText.getVisibility() == VISIBLE) {
                 // Show right away, if it's already visible and finger is moving around
-                showKey(keyIndex, tracker);
+                view.showKey(keyIndex, tracker);
             } else {
                 sendMessageDelayed(obtainMessage(MSG_POPUP_PREVIEW, keyIndex, 0, tracker),
                         delay);
@@ -336,7 +351,8 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         }
 
         public void dismissPreview(long delay) {
-            if (mPreviewPopup.isShowing()) {
+            LatinKeyboardBaseView view = mViewReference.get();
+            if (view != null && view.mPreviewPopup.isShowing()) {
                 sendMessageDelayed(obtainMessage(MSG_DISMISS_PREVIEW), delay);
             }
         }
@@ -483,73 +499,59 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.LatinKeyboardBaseView, defStyle, R.style.LatinKeyboardBaseView);
 
-        int n = a.getIndexCount();
-        for (int i = 0; i < n; i++) {
-            int attr = a.getIndex(i);
+        try {
+            int n = a.getIndexCount();
+            for (int i = 0; i < n; i++) {
+                int attr = a.getIndex(i);
 
-            switch (attr) {
-            case R.styleable.LatinKeyboardBaseView_keyBackground:
-                mKeyBackground = a.getDrawable(attr);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyHysteresisDistance:
-                mKeyHysteresisDistance = a.getDimensionPixelOffset(attr, 0);
-                break;
-            case R.styleable.LatinKeyboardBaseView_verticalCorrection:
-                mVerticalCorrection = a.getDimensionPixelOffset(attr, 0);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyTextSize:
-                mKeyTextSize = a.getDimensionPixelSize(attr, 18);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyTextColor:
-                mKeyTextColor = a.getColor(attr, 0xFF000000);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyHintColor:
-                mKeyHintColor = a.getColor(attr, 0xFFBBBBBB);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyCursorColor:
-                mKeyCursorColor = a.getColor(attr, 0xFF000000);
-                break;
-            case R.styleable.LatinKeyboardBaseView_invertSymbols:
-                mInvertSymbols = a.getBoolean(attr, false);
-                break;
-            case R.styleable.LatinKeyboardBaseView_recolorSymbols:
-                mRecolorSymbols = a.getBoolean(attr, false);
-                break;
-            case R.styleable.LatinKeyboardBaseView_labelTextSize:
-                mLabelTextSize = a.getDimensionPixelSize(attr, 14);
-                break;
-            case R.styleable.LatinKeyboardBaseView_shadowColor:
-                mShadowColor = a.getColor(attr, 0);
-                break;
-            case R.styleable.LatinKeyboardBaseView_shadowRadius:
-                mShadowRadius = a.getFloat(attr, 0f);
-                break;
-            // TODO: Use Theme (android.R.styleable.Theme_backgroundDimAmount)
-            case R.styleable.LatinKeyboardBaseView_backgroundDimAmount:
-                mBackgroundDimAmount = a.getFloat(attr, 0.5f);
-                break;
-            case R.styleable.LatinKeyboardBaseView_backgroundAlpha:
-                mBackgroundAlpha = a.getInteger(attr, 255);
-                break;
-            //case android.R.styleable.
-            case R.styleable.LatinKeyboardBaseView_keyTextStyle:
-                int textStyle = a.getInt(attr, 0);
-                switch (textStyle) {
-                    case 0:
-                        mKeyTextStyle = Typeface.DEFAULT;
-                        break;
-                    case 1:
-                        mKeyTextStyle = Typeface.DEFAULT_BOLD;
-                        break;
-                    default:
-                        mKeyTextStyle = Typeface.defaultFromStyle(textStyle);
-                        break;
+                if (attr == R.styleable.LatinKeyboardBaseView_keyBackground) {
+                    mKeyBackground = a.getDrawable(attr);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyHysteresisDistance) {
+                    mKeyHysteresisDistance = a.getDimensionPixelOffset(attr, 0);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_verticalCorrection) {
+                    mVerticalCorrection = a.getDimensionPixelOffset(attr, 0);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyTextSize) {
+                    mKeyTextSize = a.getDimensionPixelSize(attr, 18);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyTextColor) {
+                    mKeyTextColor = a.getColor(attr, 0xFF000000);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyHintColor) {
+                    mKeyHintColor = a.getColor(attr, 0xFFBBBBBB);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyCursorColor) {
+                    mKeyCursorColor = a.getColor(attr, 0xFF000000);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_invertSymbols) {
+                    mInvertSymbols = a.getBoolean(attr, false);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_recolorSymbols) {
+                    mRecolorSymbols = a.getBoolean(attr, false);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_labelTextSize) {
+                    mLabelTextSize = a.getDimensionPixelSize(attr, 14);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_shadowColor) {
+                    mShadowColor = a.getColor(attr, 0);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_shadowRadius) {
+                    mShadowRadius = a.getFloat(attr, 0f);
+                // TODO: Use Theme (android.R.styleable.Theme_backgroundDimAmount)
+                } else if (attr == R.styleable.LatinKeyboardBaseView_backgroundDimAmount) {
+                    mBackgroundDimAmount = a.getFloat(attr, 0.5f);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_backgroundAlpha) {
+                    mBackgroundAlpha = a.getInteger(attr, 255);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyTextStyle) {
+                    int textStyle = a.getInt(attr, 0);
+                    switch (textStyle) {
+                        case 0:
+                            mKeyTextStyle = Typeface.DEFAULT;
+                            break;
+                        case 1:
+                            mKeyTextStyle = Typeface.DEFAULT_BOLD;
+                            break;
+                        default:
+                            mKeyTextStyle = Typeface.defaultFromStyle(textStyle);
+                            break;
+                    }
+                } else if (attr == R.styleable.LatinKeyboardBaseView_symbolColorScheme) {
+                    mSymbolColorScheme = a.getInt(attr, 0);
                 }
-                break;
-            case R.styleable.LatinKeyboardBaseView_symbolColorScheme:
-                mSymbolColorScheme = a.getInt(attr, 0);
-                break;
             }
+        } finally {
+            a.recycle();
         }
 
         final Resources res = getResources();
@@ -1605,7 +1607,11 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
 
     @Override
     public boolean onTouchEvent(MotionEvent me) {
-        return onTouchEvent(me, false);
+        boolean handled = onTouchEvent(me, false);
+        if (me.getActionMasked() == MotionEvent.ACTION_UP) {
+            performClick();
+        }
+        return handled;
     }
 
     public boolean onTouchEvent(MotionEvent me, boolean continuing) {
@@ -1720,6 +1726,12 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
                 tracker.setSlidingKeyInputState(true);
         }
 
+        return true;
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
         return true;
     }
 

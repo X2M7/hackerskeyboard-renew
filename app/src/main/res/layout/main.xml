@@ -13,6 +13,7 @@
 
         <Button
             android:id="@+id/main_setup_btn_configure_imes"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -20,6 +21,7 @@
 
         <Button
             android:id="@+id/main_setup_btn_input_lang"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -33,6 +35,7 @@
 
         <Button
             android:id="@+id/main_setup_btn_set_ime"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -40,6 +43,7 @@
 
         <Button
             android:id="@+id/main_setup_btn_get_dicts"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -64,6 +68,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:hint="@string/main_setup_test"
+            android:importantForAutofill="no"
+            android:inputType="text"
             android:text="@string/main_setup_test" />
     </LinearLayout>
 

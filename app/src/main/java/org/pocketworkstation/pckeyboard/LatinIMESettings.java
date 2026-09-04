@@ -28,6 +28,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -49,11 +50,15 @@ public class LatinIMESettings extends PreferenceActivity
     static final String INPUT_CONNECTION_INFO = "input_connection_info";    
 
     private static final String TAG = "LatinIMESettings";
+    private static final String POST_NOTIFICATIONS_PERMISSION =
+            "android.permission.POST_NOTIFICATIONS";
 
     // Dialog ids
     private static final int VOICE_INPUT_CONFIRM_DIALOG = 0;
+    private static final int REQUEST_POST_NOTIFICATIONS = 1;
 
     private CheckBoxPreference mQuickFixes;
+    private CheckBoxPreference mKeyboardNotificationPreference;
     private ListPreference mVoicePreference;
     private ListPreference mSettingsKeyPreference;
     private ListPreference mKeyboardModePortraitPreference;
@@ -93,6 +98,15 @@ public class LatinIMESettings extends PreferenceActivity
             return true;
         });
         mQuickFixes = (CheckBoxPreference) findPreference(QUICK_FIXES_KEY);
+        mKeyboardNotificationPreference = (CheckBoxPreference)
+                findPreference(LatinIME.PREF_KEYBOARD_NOTIFICATION);
+        mKeyboardNotificationPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            if (Boolean.TRUE.equals(newValue) && needsNotificationPermission()) {
+                requestNotificationPermission();
+                return false;
+            }
+            return true;
+        });
         mVoicePreference = (ListPreference) findPreference(VOICE_SETTINGS_KEY);
         mSettingsKeyPreference = (ListPreference) findPreference(PREF_SETTINGS_KEY);
         mInputConnectionInfo = (Preference) findPreference(INPUT_CONNECTION_INFO);
@@ -105,6 +119,14 @@ public class LatinIMESettings extends PreferenceActivity
         
         SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
         prefs.registerOnSharedPreferenceChangeListener(this);
+
+        // Existing installs can carry an enabled preference onto Android 13 without the new
+        // runtime permission. Temporarily turn it off so the UI reflects reality; a grant below
+        // turns it back on and notifies the running IME through SharedPreferences.
+        if (mKeyboardNotificationPreference.isChecked() && needsNotificationPermission()) {
+            mKeyboardNotificationPreference.setChecked(false);
+            requestNotificationPermission();
+        }
 
         mVoiceModeOff = getString(R.string.voice_mode_off);
         mVoiceOn = !(prefs.getString(VOICE_SETTINGS_KEY, mVoiceModeOff).equals(mVoiceModeOff));
@@ -166,6 +188,28 @@ public class LatinIMESettings extends PreferenceActivity
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
                 this);
         super.onDestroy();
+    }
+
+    private boolean needsNotificationPermission() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && checkSelfPermission(POST_NOTIFICATIONS_PERMISSION)
+                        != PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestNotificationPermission() {
+        requestPermissions(new String[] {POST_NOTIFICATIONS_PERMISSION},
+                REQUEST_POST_NOTIFICATIONS);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_POST_NOTIFICATIONS) {
+            boolean granted = grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            mKeyboardNotificationPreference.setChecked(granted);
+        }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {

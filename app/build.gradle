@@ -35,18 +35,23 @@ android {
     ndkVersion "27.0.12077973"
     productFlavors {
     }
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
-        //abortOnError false
+    bundle {
+        language {
+            // The app switches between all bundled keyboard locales at runtime.
+            enableSplit = false
+        }
+    }
+    lint {
+        checkReleaseBuilds true
+        abortOnError true
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "androidx.core:core:1.15.0"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    //noinspection GradleDependency -- 1.17+ requires a newer compile SDK/AGP toolchain.
+    implementation "androidx.core:core:1.16.0"
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
 }

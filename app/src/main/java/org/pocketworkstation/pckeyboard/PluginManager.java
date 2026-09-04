@@ -59,6 +59,8 @@ public class PluginManager extends BroadcastReceiver {
             try {
                 Resources res = packageManager.getResourcesForApplication(appInfo);
                 //Log.i(TAG, "Found dictionary plugin package: " + pkgName);
+                // Plugin packages define their own resource IDs, so no local R reference exists.
+                //noinspection DiscouragedApi
                 int dictId = res.getIdentifier("dictionaries", "xml", pkgName);
                 if (dictId == 0) {
                     try {
@@ -128,12 +130,15 @@ public class PluginManager extends BroadcastReceiver {
             try {
                 Resources res = packageManager.getResourcesForApplication(appInfo);
                 //Log.i(TAG, "Found dictionary plugin package: " + pkgName);
+                // Plugin packages define their own resource IDs, so no local R reference exists.
+                //noinspection DiscouragedApi
                 int langId = res.getIdentifier("dict_language", "string", pkgName);
                 if (langId == 0) continue;
                 String lang = res.getString(langId);
                 int[] rawIds = null;
 
                 // Try single-file version first
+                //noinspection DiscouragedApi
                 int rawId = res.getIdentifier("main", "raw", pkgName);
                 if (rawId != 0) {
                     rawIds = new int[]{rawId};
@@ -142,6 +147,7 @@ public class PluginManager extends BroadcastReceiver {
                     int parts = 0;
                     List<Integer> ids = new ArrayList<Integer>();
                     while (true) {
+                        //noinspection DiscouragedApi
                         int id = res.getIdentifier("main" + parts, "raw", pkgName);
                         if (id == 0) break;
                         ids.add(id);

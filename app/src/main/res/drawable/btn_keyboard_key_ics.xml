@@ -12,13 +12,6 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
-
-
-    Unused Action keys:
-    <item android:state_active="true" android:state_pressed="true"
-          android:drawable="@drawable/btn_keyboard_key_dark_pressed_holo" />
-    <item android:state_active="true"
-          android:drawable="@drawable/btn_keyboard_key_dark_active_holo" />
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">

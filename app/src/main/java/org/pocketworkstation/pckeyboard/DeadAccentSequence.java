@@ -18,7 +18,6 @@ package org.pocketworkstation.pckeyboard;
 
 import java.text.Normalizer;
 
-import android.os.Build;
 import android.util.Log;
 
 public class DeadAccentSequence extends ComposeSequence {
@@ -71,13 +70,9 @@ public class DeadAccentSequence extends ComposeSequence {
         put("\u0301\u03cb", "\u03b0");        // Greek Dialytika+Tonos, upsilon
    }
 
-	private static String doNormalise(String input)
-	{
-		if (Build.VERSION.SDK_INT >= 9) {
-			return Normalizer.normalize(input, Normalizer.Form.NFC);
-		}
-		return input;
-	}
+    private static String doNormalise(String input) {
+        return Normalizer.normalize(input, Normalizer.Form.NFC);
+    }
 
     public static String normalize(String input) {
     	String lookup = mMap.get(input);

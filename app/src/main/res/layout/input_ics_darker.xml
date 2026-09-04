@@ -21,6 +21,7 @@
 <org.pocketworkstation.pckeyboard.LatinKeyboardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:latin="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/LatinkeyboardBaseView"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
@@ -28,6 +29,7 @@
         android:paddingBottom="@dimen/keyboard_bottom_padding"
         android:background="@drawable/keyboard_dark_background"
         android:textStyle="bold"
+        tools:ignore="Overdraw"
 
         latin:keyBackground="@drawable/btn_keyboard_key_ics"
         latin:keyTextStyle="bold"

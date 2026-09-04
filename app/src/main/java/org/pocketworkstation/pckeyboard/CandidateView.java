@@ -104,6 +104,8 @@ public class CandidateView extends View {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Resources res = context.getResources();
         mPreviewPopup = new PopupWindow(context);
+        // PopupWindow content is intentionally unattached and has no parent layout.
+        //noinspection InflateParams
         mPreviewText = (TextView) inflate.inflate(R.layout.candidate_preview, null);
         mPreviewPopup.setWindowLayoutMode(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         mPreviewPopup.setContentView(mPreviewText);
@@ -203,15 +205,14 @@ public class CandidateView extends View {
         return mTotalWidth;
     }
 
-    /**
-     * If the canvas is null, then only touch calculations are performed to pick the target
-     * candidate.
-     */
     @Override
     protected void onDraw(Canvas canvas) {
-        if (canvas != null) {
-            super.onDraw(canvas);
-        }
+        super.onDraw(canvas);
+        updateCandidateMetricsAndDraw(canvas);
+    }
+
+    /** Recomputes candidate bounds, optionally drawing them when a canvas is supplied. */
+    private void updateCandidateMetricsAndDraw(Canvas canvas) {
         mTotalWidth = 0;
         
         final int height = getHeight();
@@ -335,7 +336,7 @@ public class CandidateView extends View {
         mTargetScrollX = 0;
         mHaveMinimalSuggestion = haveMinimalSuggestion;
         // Compute the total width
-        onDraw(null);
+        updateCandidateMetricsAndDraw(null);
         invalidate();
         requestLayout();
     }
@@ -411,6 +412,7 @@ public class CandidateView extends View {
             break;
         case MotionEvent.ACTION_UP:
             if (!mScrolled) {
+                performClick();
                 if (mSelectedString != null) {
                     if (mShowingAddToDictionary) {
                         longPressFirstWord();
@@ -431,6 +433,12 @@ public class CandidateView extends View {
             invalidate();
             break;
         }
+        return true;
+    }
+
+    @Override
+    public boolean performClick() {
+        super.performClick();
         return true;
     }
 

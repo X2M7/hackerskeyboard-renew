@@ -206,12 +206,10 @@ public class InputLanguageSelection extends PreferenceActivity {
     }
 
     private boolean hasDictionary(Locale locale) {
-        Resources res = getResources();
-        Configuration conf = res.getConfiguration();
-        Locale saveLocale = conf.locale;
+        Configuration configuration = new Configuration(getResources().getConfiguration());
+        configuration.setLocale(locale);
+        Resources res = createConfigurationContext(configuration).getResources();
         boolean haveDictionary = false;
-        conf.locale = locale;
-        res.updateConfiguration(conf, res.getDisplayMetrics());
 
         int[] dictionaries = LatinIME.getDictionary(res);
         BinaryDictionary bd = new BinaryDictionary(this, dictionaries, Suggest.DIC_MAIN);
@@ -230,8 +228,6 @@ public class InputLanguageSelection extends PreferenceActivity {
         }
 
         bd.close();
-        conf.locale = saveLocale;
-        res.updateConfiguration(conf, res.getDisplayMetrics());
         return haveDictionary;
     }
 
@@ -268,17 +264,17 @@ public class InputLanguageSelection extends PreferenceActivity {
     }
 
     private static String asString(Set<String> set) {
-    	StringBuilder out = new StringBuilder();
-    	out.append("set(");
-    	String[] parts = new String[set.size()];
-    	parts = set.toArray(parts);
+        StringBuilder out = new StringBuilder();
+        out.append("set(");
+        String[] parts = new String[set.size()];
+        parts = set.toArray(parts);
         Arrays.sort(parts);
         for (int i = 0; i < parts.length; ++i) {
-    		if (i > 0) out.append(", ");
-    		out.append(parts[i]);
-    	}
-    	out.append(")");
-    	return out.toString();
+            if (i > 0) out.append(", ");
+            out.append(parts[i]);
+        }
+        out.append(")");
+        return out.toString();
     }
     
     ArrayList<Loc> getUniqueLocales() {

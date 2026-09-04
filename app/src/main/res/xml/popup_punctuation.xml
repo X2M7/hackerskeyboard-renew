@@ -19,50 +19,50 @@
 -->
 
 <Keyboard
-    xmlns:android="http://schemas.android.com/apk/res-auto"
-    android:keyWidth="10%p"
-    android:horizontalGap="0px"
-    android:verticalGap="0px"
-    android:keyHeight="@dimen/popup_key_height"
+    xmlns:keyboard="http://schemas.android.com/apk/res-auto"
+    keyboard:keyWidth="10%p"
+    keyboard:horizontalGap="0px"
+    keyboard:verticalGap="0px"
+    keyboard:keyHeight="@dimen/popup_key_height"
 >
     <Row
-        android:rowEdgeFlags="top"
+        keyboard:rowEdgeFlags="top"
     >
         <Key
-            android:keyLabel=":"
-            android:keyEdgeFlags="left" />
+            keyboard:keyLabel=":"
+            keyboard:keyEdgeFlags="left" />
         <Key
-            android:keyLabel="/" />
+            keyboard:keyLabel="/" />
         <Key
-            android:keyLabel="&amp;" />
+            keyboard:keyLabel="&amp;" />
         <Key
-            android:keyLabel="(" />
+            keyboard:keyLabel="(" />
         <Key
-            android:keyLabel=")" />
+            keyboard:keyLabel=")" />
         <Key
-            android:keyLabel="-" />
+            keyboard:keyLabel="-" />
         <Key
-            android:keyLabel="+"
-            android:keyEdgeFlags="right" />
+            keyboard:keyLabel="+"
+            keyboard:keyEdgeFlags="right" />
     </Row>
     <Row
-        android:rowEdgeFlags="bottom"
+        keyboard:rowEdgeFlags="bottom"
     >
         <Key
-            android:keyLabel=";"
-            android:keyEdgeFlags="left" />
+            keyboard:keyLabel=";"
+            keyboard:keyEdgeFlags="left" />
         <Key
-            android:keyLabel="\@" />
+            keyboard:keyLabel="\@" />
         <Key
-            android:keyLabel="\'" />
+            keyboard:keyLabel="\'" />
         <Key
-            android:keyLabel="&quot;" />
+            keyboard:keyLabel="&quot;" />
         <Key
-            android:keyLabel="\?" />
+            keyboard:keyLabel="\?" />
         <Key
-            android:keyLabel="!" />
+            keyboard:keyLabel="!" />
         <Key
-            android:keyLabel=","
-            android:keyEdgeFlags="right" />
+            keyboard:keyLabel=","
+            keyboard:keyEdgeFlags="right" />
     </Row>
 </Keyboard>

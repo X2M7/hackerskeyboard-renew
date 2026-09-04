@@ -242,7 +242,7 @@ public class Suggest implements Dictionary.WordCallback {
         if (mOriginalWord != null) {
             final String mOriginalWordString = mOriginalWord.toString();
             mOriginalWord = mOriginalWordString;
-            mLowerOriginalWord = mOriginalWordString.toLowerCase();
+            mLowerOriginalWord = mOriginalWordString.toLowerCase(Locale.getDefault());
         } else {
             mLowerOriginalWord = "";
         }
@@ -254,7 +254,8 @@ public class Suggest implements Dictionary.WordCallback {
             collectGarbage(mBigramSuggestions, PREF_MAX_BIGRAMS);
 
             if (!TextUtils.isEmpty(prevWordForBigram)) {
-                CharSequence lowerPrevWord = prevWordForBigram.toString().toLowerCase();
+                CharSequence lowerPrevWord = prevWordForBigram.toString()
+                        .toLowerCase(Locale.getDefault());
                 if (mMainDict.isValidWord(lowerPrevWord)) {
                     prevWordForBigram = lowerPrevWord;
                 }
@@ -329,7 +330,8 @@ public class Suggest implements Dictionary.WordCallback {
             // Don't autotext the suggestions from the dictionaries
             if (mCorrectionMode == CORRECTION_BASIC) max = 1;
             while (i < mSuggestions.size() && i < max) {
-                String suggestedWord = mSuggestions.get(i).toString().toLowerCase();
+                String suggestedWord = mSuggestions.get(i).toString()
+                        .toLowerCase(Locale.getDefault());
                 CharSequence autoText =
                         AutoText.get(suggestedWord, 0, suggestedWord.length(), view);
                 // Is there an AutoText correction?
@@ -464,7 +466,7 @@ public class Suggest implements Dictionary.WordCallback {
                 : new StringBuilder(getApproxMaxWordLength());
         sb.setLength(0);
         if (mIsAllUpperCase) {
-            sb.append(new String(word, offset, length).toUpperCase());
+            sb.append(new String(word, offset, length).toUpperCase(Locale.getDefault()));
         } else if (mIsFirstCharCapitalized) {
             sb.append(Character.toUpperCase(word[offset]));
             if (length > 1) {

@@ -19,17 +19,18 @@
 -->
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/keyboard_popup_panel_background"
         android:paddingLeft="16dip"
         android:paddingRight="16dip"
+        tools:ignore="Overdraw"
         >
     <org.pocketworkstation.pckeyboard.LatinKeyboardBaseView
             xmlns:latin="http://schemas.android.com/apk/res-auto"
             android:id="@+id/LatinKeyboardBaseView"
-            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/latinkeyboard_transparent"

@@ -16,7 +16,9 @@
 
 package org.pocketworkstation.pckeyboard;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -27,6 +29,7 @@ import org.pocketworkstation.pckeyboard.Keyboard.Key;
 
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -124,33 +127,34 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
     public LatinKeyboardView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        // TODO(klausw): migrate attribute styles to LatinKeyboardView?
+        // This subclass intentionally extends the base view's public style contract; renaming the
+        // styleable would duplicate every keyboard attribute without changing runtime behavior.
+        //noinspection CustomViewStyleable
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.LatinKeyboardBaseView, defStyle, R.style.LatinKeyboardBaseView);
         LayoutInflater inflate =
                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         int previewLayout = 0;
-        int n = a.getIndexCount();
-        for (int i = 0; i < n; i++) {
-            int attr = a.getIndex(i);
+        try {
+            int n = a.getIndexCount();
+            for (int i = 0; i < n; i++) {
+                int attr = a.getIndex(i);
 
-            switch (attr) {
-            case R.styleable.LatinKeyboardBaseView_keyPreviewLayout:
-                previewLayout = a.getResourceId(attr, 0);
-                if (previewLayout == R.layout.null_layout) previewLayout = 0;
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyPreviewOffset:
-                mPreviewOffset = a.getDimensionPixelOffset(attr, 0);
-                break;
-            case R.styleable.LatinKeyboardBaseView_keyPreviewHeight:
-                mPreviewHeight = a.getDimensionPixelSize(attr, 80);
-                break;
-            case R.styleable.LatinKeyboardBaseView_popupLayout:
-                mPopupLayout = a.getResourceId(attr, 0);
-                if (mPopupLayout == R.layout.null_layout) mPopupLayout = 0;
-                break;
+                if (attr == R.styleable.LatinKeyboardBaseView_keyPreviewLayout) {
+                    previewLayout = a.getResourceId(attr, 0);
+                    if (previewLayout == R.layout.null_layout) previewLayout = 0;
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyPreviewOffset) {
+                    mPreviewOffset = a.getDimensionPixelOffset(attr, 0);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_keyPreviewHeight) {
+                    mPreviewHeight = a.getDimensionPixelSize(attr, 80);
+                } else if (attr == R.styleable.LatinKeyboardBaseView_popupLayout) {
+                    mPopupLayout = a.getResourceId(attr, 0);
+                    if (mPopupLayout == R.layout.null_layout) mPopupLayout = 0;
+                }
             }
+        } finally {
+            a.recycle();
         }
 
         final Resources res = getResources();
@@ -164,6 +168,8 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
             mPreviewPopup = new PopupWindow(context);
             if (!isInEditMode())
                 Log.i(TAG, "new mPreviewPopup " + mPreviewPopup + " from " + this);
+            // PopupWindow content is intentionally unattached and has no parent layout.
+            //noinspection InflateParams
             mPreviewText = (TextView) inflate.inflate(previewLayout, null);
             mPreviewTextSizeLarge = (int) res.getDimension(R.dimen.key_preview_text_size_large);
             mPreviewPopup.setContentView(mPreviewText);
@@ -301,7 +307,9 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
                     MotionEvent translated = MotionEvent.obtain(me.getEventTime(), me.getEventTime(),
                             MotionEvent.ACTION_UP,
                             mLastX, mLastY, me.getMetaState());
-                    super.onTouchEvent(translated);
+                    // This synthetic UP only closes the abandoned gesture. The real UP event
+                    // will report the accessibility click once.
+                    super.onTouchEvent(translated, false);
                     translated.recycle();
                 }
                 result = true;
@@ -363,7 +371,10 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
 
         // If we don't have an extension keyboard, don't go any further.
         if (keyboard.getExtension() == null) {
-            return super.onTouchEvent(me);
+            if (me.getActionMasked() == MotionEvent.ACTION_UP) {
+                performClick();
+            }
+            return super.onTouchEvent(me, false);
         }
         // If the motion event is above the keyboard and it's not an UP event coming
         // even before the first MOVE event into the extension area
@@ -421,6 +432,11 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
         } else {
             return super.onTouchEvent(me);
         }
+    }
+
+    @Override
+    public boolean performClick() {
+        return super.performClick();
     }
 
     private void setExtensionType(boolean isExtensionType) {
@@ -543,62 +559,66 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
     private int mLastY;
     private Paint mPaint;
 
+    private static final class AutoPlayHandler extends Handler {
+        private final WeakReference<LatinKeyboardView> mViewReference;
+
+        AutoPlayHandler(LatinKeyboardView view) {
+            super(Looper.getMainLooper());
+            mViewReference = new WeakReference<LatinKeyboardView>(view);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            removeMessages(MSG_TOUCH_DOWN);
+            removeMessages(MSG_TOUCH_UP);
+            LatinKeyboardView view = mViewReference.get();
+            if (view == null || !view.mPlaying) return;
+
+            switch (msg.what) {
+                case MSG_TOUCH_DOWN:
+                    if (view.mStringIndex >= view.mStringToPlay.length()) {
+                        view.mPlaying = false;
+                        return;
+                    }
+                    char c = view.mStringToPlay.charAt(view.mStringIndex);
+                    while (c > 255 || view.mAsciiKeys[c] == null) {
+                        view.mStringIndex++;
+                        if (view.mStringIndex >= view.mStringToPlay.length()) {
+                            view.mPlaying = false;
+                            return;
+                        }
+                        c = view.mStringToPlay.charAt(view.mStringIndex);
+                    }
+                    int x = view.mAsciiKeys[c].x + 10;
+                    int y = view.mAsciiKeys[c].y + 26;
+                    MotionEvent downEvent = MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, x, y, 0);
+                    view.dispatchTouchEvent(downEvent);
+                    downEvent.recycle();
+                    sendEmptyMessageDelayed(MSG_TOUCH_UP, 500);
+                    view.mDownDelivered = true;
+                    break;
+                case MSG_TOUCH_UP:
+                    char cUp = view.mStringToPlay.charAt(view.mStringIndex);
+                    int xUp = view.mAsciiKeys[cUp].x + 10;
+                    int yUp = view.mAsciiKeys[cUp].y + 26;
+                    view.mStringIndex++;
+                    MotionEvent upEvent = MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, xUp, yUp, 0);
+                    view.dispatchTouchEvent(upEvent);
+                    upEvent.recycle();
+                    sendEmptyMessageDelayed(MSG_TOUCH_DOWN, 500);
+                    view.mDownDelivered = false;
+                    break;
+            }
+        }
+    }
+
     private void setKeyboardLocal(Keyboard k) {
         if (DEBUG_AUTO_PLAY) {
             findKeys();
             if (mHandler2 == null) {
-                mHandler2 = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        removeMessages(MSG_TOUCH_DOWN);
-                        removeMessages(MSG_TOUCH_UP);
-                        if (mPlaying == false) return;
-
-                        switch (msg.what) {
-                            case MSG_TOUCH_DOWN:
-                                if (mStringIndex >= mStringToPlay.length()) {
-                                    mPlaying = false;
-                                    return;
-                                }
-                                char c = mStringToPlay.charAt(mStringIndex);
-                                while (c > 255 || mAsciiKeys[c] == null) {
-                                    mStringIndex++;
-                                    if (mStringIndex >= mStringToPlay.length()) {
-                                        mPlaying = false;
-                                        return;
-                                    }
-                                    c = mStringToPlay.charAt(mStringIndex);
-                                }
-                                int x = mAsciiKeys[c].x + 10;
-                                int y = mAsciiKeys[c].y + 26;
-                                MotionEvent me = MotionEvent.obtain(SystemClock.uptimeMillis(),
-                                        SystemClock.uptimeMillis(),
-                                        MotionEvent.ACTION_DOWN, x, y, 0);
-                                LatinKeyboardView.this.dispatchTouchEvent(me);
-                                me.recycle();
-                                sendEmptyMessageDelayed(MSG_TOUCH_UP, 500); // Deliver up in 500ms if nothing else
-                                // happens
-                                mDownDelivered = true;
-                                break;
-                            case MSG_TOUCH_UP:
-                                char cUp = mStringToPlay.charAt(mStringIndex);
-                                int x2 = mAsciiKeys[cUp].x + 10;
-                                int y2 = mAsciiKeys[cUp].y + 26;
-                                mStringIndex++;
-
-                                MotionEvent me2 = MotionEvent.obtain(SystemClock.uptimeMillis(),
-                                        SystemClock.uptimeMillis(),
-                                        MotionEvent.ACTION_UP, x2, y2, 0);
-                                LatinKeyboardView.this.dispatchTouchEvent(me2);
-                                me2.recycle();
-                                sendEmptyMessageDelayed(MSG_TOUCH_DOWN, 500); // Deliver up in 500ms if nothing else
-                                // happens
-                                mDownDelivered = false;
-                                break;
-                        }
-                    }
-                };
-
+                mHandler2 = new AutoPlayHandler(this);
             }
         }
     }
@@ -617,7 +637,7 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
     public void startPlaying(String s) {
         if (DEBUG_AUTO_PLAY) {
             if (s == null) return;
-            mStringToPlay = s.toLowerCase();
+            mStringToPlay = s.toLowerCase(Locale.ROOT);
             mPlaying = true;
             mDownDelivered = false;
             mStringIndex = 0;

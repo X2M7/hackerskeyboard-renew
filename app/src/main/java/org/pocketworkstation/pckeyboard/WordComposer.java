@@ -63,6 +63,7 @@ public class WordComposer {
     public void reset() {
         mCodes.clear();
         mIsFirstCharCapitalized = false;
+        mAutoCapitalized = false;
         mPreferredWord = null;
         mTypedWord.setLength(0);
         mCapsCount = 0;

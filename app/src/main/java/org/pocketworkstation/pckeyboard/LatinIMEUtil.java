@@ -23,6 +23,8 @@ import android.os.AsyncTask;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+
 public class LatinIMEUtil {
 
     /**
@@ -79,7 +81,7 @@ public class LatinIMEUtil {
         private static final char PLACEHOLDER_DELIMITER_CHAR = '\uFFFC';
         private static final int INVALID_COORDINATE = -2;
         /* package */ static final int BUFSIZE = 20;
-        private Context mContext;
+        private WeakReference<LatinIME> mImeReference = new WeakReference<LatinIME>(null);
         private boolean mEnabled = false;
         private int mEnd = 0;
         /* package */ int mLength = 0;
@@ -93,7 +95,8 @@ public class LatinIMEUtil {
             return sRingCharBuffer;
         }
         public static RingCharBuffer init(Context context, boolean enabled) {
-            sRingCharBuffer.mContext = context;
+            LatinIME ime = context instanceof LatinIME ? (LatinIME) context : null;
+            sRingCharBuffer.mImeReference = new WeakReference<LatinIME>(ime);
             sRingCharBuffer.mEnabled = enabled;
             return sRingCharBuffer;
         }
@@ -147,9 +150,10 @@ public class LatinIMEUtil {
         }
         public String getLastString() {
             StringBuffer sb = new StringBuffer();
+            LatinIME ime = mImeReference.get();
             for (int i = 0; i < mLength; ++i) {
                 char c = mCharBuf[normalize(mEnd - 1 - i)];
-                if (!((LatinIME)mContext).isWordSeparator(c)) {
+                if (ime == null || !ime.isWordSeparator(c)) {
                     sb.append(c);
                 } else {
                     break;

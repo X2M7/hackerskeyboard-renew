@@ -967,7 +967,7 @@ public class Keyboard {
             // Uppercase the alt chars if the main key is uppercase
             boolean needUpcase = key.label != null && key.label.length() == 1 && Character.isUpperCase(key.label.charAt(0));
             if (needUpcase) {
-                key.popupCharacters = key.popupCharacters.toString().toUpperCase();
+                key.popupCharacters = key.popupCharacters.toString().toUpperCase(locale);
                 popupLen = key.popupCharacters.length();
             }
 

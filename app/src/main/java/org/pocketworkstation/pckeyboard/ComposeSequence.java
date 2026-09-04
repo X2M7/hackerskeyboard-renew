@@ -173,11 +173,11 @@ public class ComposeSequence {
             Log.w(TAG, "compose sequence is a subset: " + format(key));
 
         mMap.put(key, value);
-    	for (int i = 1; i < key.length(); ++i) {
+        for (int i = 1; i < key.length(); ++i) {
             String substr = key.substring(0, i);
             found |= mMap.containsKey(substr);
             mPrefixes.add(substr);
-    	}
+        }
 
         if (found)
             Log.w(TAG, "compose sequence is a superset: " + format(key));

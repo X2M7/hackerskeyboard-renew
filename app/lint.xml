@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!-- Translations are community-maintained and intentionally fall back to the default
+         strings when a locale has not caught up yet. -->
+    <issue id="MissingTranslation">
+        <ignore path="src/main/res/values/strings.xml" />
+    </issue>
+
+    <!-- Key geometry is specified as a physical finger distance, rather than a screen-density
+         independent layout size. -->
+    <issue id="InOrMmUsage">
+        <ignore path="src/main/res/values/dimens.xml" />
+        <ignore path="src/main/res/values-land/dimens.xml" />
+        <ignore path="src/main/res/values-xlarge/dimens.xml" />
+        <ignore path="src/main/res/values-xlarge-land/dimens.xml" />
+    </issue>
+
+    <!-- These legacy qualifiers are public keyboard layout identifiers, not geographic
+         locale claims: NE means Neo, LA means Latin American, and PH means phonetic. -->
+    <issue id="WrongRegion">
+        <ignore path="src/main/res/values-de-rNE" />
+        <ignore path="src/main/res/values-es-rLA" />
+        <ignore path="src/main/res/values-ru-rPH" />
+        <ignore path="src/main/res/xml-de-rNE" />
+        <ignore path="src/main/res/xml-es-rLA" />
+        <ignore path="src/main/res/xml-ru-rPH" />
+    </issue>
+
+    <!-- Android historically used both he and iw. The app exposes both identifiers so old
+         devices do not fall back to an English keymap. -->
+    <issue id="LocaleFolder">
+        <ignore path="src/main/res/values-he" />
+        <ignore path="src/main/res/xml-he" />
+    </issue>
+
+    <!-- These files contain literal long-press characters, not Portuguese prose. -->
+    <issue id="Typos">
+        <ignore path="src/main/res/values-pt/donottranslate-altchars.xml" />
+        <ignore path="src/main/res/values-pt-rPT/donottranslate-altchars.xml" />
+    </issue>
+
+    <!-- The legacy theme art intentionally has different resource sets per density. Android
+         scales the nearest fallback for artwork that was never authored at every density. -->
+    <issue id="IconDensities">
+        <ignore path="src/main/res/drawable-mdpi" />
+        <ignore path="src/main/res/drawable-hdpi" />
+        <ignore path="src/main/res/drawable-xhdpi" />
+        <ignore path="src/main/res/drawable-xxhdpi" />
+    </issue>
+
+    <!-- Black and dark themes retain separate semantic resource IDs even where the current
+         pixels are identical. -->
+    <issue id="IconDuplicates">
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_popup_selected_material_black.9.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_popup_selected_material_dark.9.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_pressed_off_material_black.9.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_pressed_off_material_dark.9.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_pressed_on_material_black.9.png" />
+        <ignore path="src/main/res/drawable-xxhdpi/btn_keyboard_key_pressed_on_material_dark.9.png" />
+    </issue>
+
+    <!-- Matching stone-theme 9-patches preserve the legacy per-density selection behavior. -->
+    <issue id="IconDuplicatesConfig">
+        <ignore path="src/main/res/drawable-mdpi/btn_keyboard_key_normal_off_stone.9.png" />
+        <ignore path="src/main/res/drawable-hdpi/btn_keyboard_key_normal_off_stone.9.png" />
+        <ignore path="src/main/res/drawable-mdpi/btn_keyboard_key_normal_on_stone.9.png" />
+        <ignore path="src/main/res/drawable-hdpi/btn_keyboard_key_normal_on_stone.9.png" />
+        <ignore path="src/main/res/drawable-mdpi/btn_keyboard_key_normal_stone.9.png" />
+        <ignore path="src/main/res/drawable-hdpi/btn_keyboard_key_normal_stone.9.png" />
+    </issue>
+</lint>
